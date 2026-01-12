@@ -131,19 +131,8 @@ vvv
 
 vvv
 
-### 2.6. Synchronous vs asynchronous actions
-
-|              | Can be halted | Tree responsiveness | Returns                   |
-| ------------ | ------------- | ------------------- | ------------------------- |
-| Synchronous  | ❌            | ❌                  | Success, Failure          |
-| Asynchronous | ✅            | ✅                  | Success, Failure, Running |
-
-**Async nodes are preferred!** <!-- .element: class="fragment" -->
-
-vvv
-
 <!-- .slide: class="gridNx2" -->
-### 2.7. Reactive version of control nodes <!-- .element: class="header" -->
+### 2.6. Reactive version of control nodes <!-- .element: class="header" -->
 
 ![Reactive sequence](img/reactive_sequence.png) <!-- .element: class="fragment" -->
 
@@ -152,7 +141,7 @@ vvv
 vvv
 
 <!-- .slide: class="gridNx2" -->
-### 2.8. Blackboard and ports <!-- .element: class="header" -->
+### 2.7. Blackboard and ports <!-- .element: class="header" -->
 
 * Blackboard = memory <!-- .element: class="fragment" -->
     * Use scarcely! <!-- .element: class="fragment" -->
@@ -165,7 +154,25 @@ vvv
 
 vvv
 
-### 2.9. A complete example
+### 2.8. A complete example
+
+<div class="r-stack">
+<img src="img/full_example_frame1.png" class="fragment fade-out" data-fragment-index="0">
+<img src="img/full_example_frame2.png" class="fragment fade-in-then-out" data-fragment-index="0">
+<img src="img/full_example_frame3.png" class="fragment fade-in-then-out">
+<img src="img/full_example_frame4.png" class="fragment fade-in-then-out">
+<img src="img/full_example_frame5.png" class="fragment fade-in-then-out">
+<img src="img/full_example_frame6.png" class="fragment fade-in-then-out">
+<img src="img/full_example_frame7.png" class="fragment fade-in-then-out">
+<img src="img/full_example_frame8.png" class="fragment fade-in-then-out">
+<img src="img/full_example_frame9.png" class="fragment fade-in-then-out">
+<img src="img/full_example_frame10.png" class="fragment fade-in-then-out">
+<img src="img/full_example_frame11.png" class="fragment fade-in-then-out">
+<img src="img/full_example_frame12.png" class="fragment fade-in-then-out">
+<img src="img/full_example_frame13.png" class="fragment fade-in-then-out">
+<img src="img/full_example_frame14.png" class="fragment fade-in-then-out">
+<img src="img/full_example_frame15.png" class="fragment">
+</div>
 
 >>>
 
@@ -177,33 +184,98 @@ vvv
 
 ## 3.1. Overview
 
-vvv
-
-## 3.2. The XML schema
-
-vvv
-
-## 3.3. Loggers and observers
-
-vvv
-
-## 3.4. Preconditions
+* Open source <!-- .element: class="fragment" -->
+* Started by Michele Coledanchise circa 2015
+* ... maintained by Davide Faconti 
+* C++ 17 <!-- .element: class="fragment" -->
+* Very few dependencies
+* BTs as XML files
+* Async actions as first class citizens
+* Easy interaction with ROS 2
 
 vvv
 
-## 3.5. Groot2
+## 3.1. Architecture
 
 vvv
 
-## 3.6. Other features
+## 3.2. Registering nodes
+
+vvv
+
+## 3.3. Synchronous vs asynchronous actions
+
+|              | Can be halted | Tree responsiveness | Returns                   |
+| ------------ | ------------- | ------------------- | ------------------------- |
+| Synchronous  | ❌            | ❌                  | Success, Failure          |
+| Asynchronous | ✅            | ✅                  | Success, Failure, Running |
+
+**Async nodes are generally preferred!** <!-- .element: class="fragment" -->
+
+vvv
+
+## 3.3. Registering, instantiate and run trees
+
+vvv
+
+## 3.4. Preconditions & postconditions
+
+vvv
+
+## 3.5. Loggers and observers
+
+vvv
+
+## 3.6. Groot2
+
+vvv
+
+## 3.7. Execution example
+
+vvv
+
+## 3.8. Other features
+
+* Scripting language
+* Support for parallel control nodes
+* Node replacements (mocks)
+* Allows dynamic plugins
 
 >>>
 
 ## 🤖 4. ROS 2 integration 🤖
 
+vvv
+
+### 4.1. Overview
+
+vvv
+
+### 4.2. ROS 2 actions as BT.cpp async actions
+
+vvv
+
+### 4.3. Tree execution server
+
+vvv
+
+### 4.4. Execution example
+
 >>>
 
 ## 🎓 5. Research opportunities 🎓
+
+vvv
+
+### 5.1. Genetic algorithms
+
+vvv
+
+### 5.2. Coledanchise
+
+vvv
+
+### 5.3. Madrid
 
 >>>
 
