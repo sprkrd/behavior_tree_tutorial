@@ -1,6 +1,8 @@
-# Behavior Trees for Robotics <!-- .element: class="r-fit-text" -->
+# Behavior Trees for Robotics 
 
-🦆 *Alejandro Suárez Hernández*
+🦆 *Alejandro Suárez Hernández* 🦆 
+
+(available at https://sprkrd.github.io/behavior_tree_tutorial/slides)
 
 >>>
 
@@ -214,6 +216,6 @@ vvv
 * Lots of resources and support
 * Research opportunities if you work in planning
 
-vvv
+>>>
 
-## 7. Resources
+## 🔗 7. Resources 🔗 
