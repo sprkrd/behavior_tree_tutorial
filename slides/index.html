@@ -1,27 +1,58 @@
 <!doctype html>
 <html lang="en">
 
-	<head>
-		<meta charset="utf-8">
+    <head>
+        <meta charset="utf-8">
 
-		<title>Tutorial on behavior trees</title>
+        <title>Tutorial on behavior trees</title>
 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<link rel="stylesheet" href="revealjs/dist/reveal.css">
-		<link rel="stylesheet" href="revealjs/dist/theme/night.css" id="theme">
-	</head>
+        <link rel="stylesheet" href="revealjs/dist/reveal.css">
+        <link rel="stylesheet" href="revealjs/dist/theme/night.css" id="theme">
+
+        <style>
+            .gridNx2 {
+                --r-block-margin: 0 !important;
+                display: grid !important;
+                gap: 50px;
+                grid-template-columns: auto auto;
+                grid-template-areas:
+                    "header header";
+            }
+
+            .gridNx3 {
+                --r-block-margin: 0 !important;
+                display: grid !important;
+                gap: 50px;
+                grid-template-columns: auto auto auto;
+                grid-template-areas:
+                    "header header header";
+            }
+
+            .header {
+                display: block;
+                grid-area: header;
+            }
+
+            figure {
+                margin: 0;
+            }
+
+        </style>
+    </head>
 
     <body>
 
         <div class="reveal">
             <div class="slides">
-                <section>
-                    <h1>Slide 1</h1>
-                </section>
-
-                <section>
-                    <h1>Slide 2</h1>
+                <section
+                        data-markdown="presentation.md"
+                        data-separator="^\n>>>\n"
+                        data-separator-vertical="^\nvvv\n"
+                        data-separator-notes="^\nNote:"
+                        data-charset="utf-8"
+                >
                 </section>
             </div>
         </div>
@@ -29,11 +60,64 @@
         <script src="revealjs/dist/reveal.js"></script>
         <script src="revealjs/plugin/zoom/zoom.js"></script>
         <script src="revealjs/plugin/notes/notes.js"></script>
+        <script src="revealjs/plugin/markdown/markdown.js"></script>
 
         <script>
             Reveal.initialize({
-                plugins: [RevealZoom, RevealNotes]
+                autoPlayMedia: true,
+                hash: true,
+                width: 1920,
+                height: 1080,
+                slideNumber: "c/t",
+                plugins: [RevealZoom, RevealNotes, RevealMarkdown]
             });
+        </script>
+
+        <script>
+            document.addEventListener("ready", () => {
+                // Select all images with an alt attribute
+                document.querySelectorAll("img[alt]").forEach(img => {
+                  const altText = img.alt.trim();
+
+                  if (!altText) return;
+
+                  console.log("text: " + altText);
+
+                  // Skip if the parent is already a figure
+                  if (img.parentElement.tagName.toLowerCase() === "figure") {
+                    // If figure exists but no figcaption, add it
+                    if (!img.parentElement.querySelector("figcaption")) {
+                      const caption = document.createElement("figcaption");
+                      caption.textContent = altText;
+                      img.parentElement.appendChild(caption);
+                    }
+                    return;
+                  }
+
+                  // Create a figure element
+                  const figure = document.createElement("figure");
+
+                  // Transfer class and dataset 
+                  figure.className = img.className;
+                  for (const [key, value] of Object.entries(img.dataset)) {
+                      figure.dataset[key] = value;
+                  }
+                  img.className = "";
+                  for (const key in img.dataset) delete img.dataset[key];
+
+                  // Clone the image and move it inside the figure
+                  const imgClone = img.cloneNode(true);
+                  figure.appendChild(imgClone);
+
+                  // Create figcaption with alt text
+                  const caption = document.createElement("figcaption");
+                  caption.textContent = altText;
+                  figure.appendChild(caption);
+
+                  // Replace the original image with the new figure
+                  img.replaceWith(figure);
+                });
+              });
         </script>
 
     </body>
