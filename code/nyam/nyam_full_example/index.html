@@ -46,8 +46,9 @@
             log.value += text.trim() + "\n";
 
             const lines = log.value.split("\n");
+			console.log(lines.length);
             if (lines.length > maxLines) {
-                log.values = lines.slice(lines.length - maxLines).join("\n");
+                log.value = lines.slice(lines.length - maxLines).join("\n");
             }
 
             log.scrollTop = log.scrollHeight;
