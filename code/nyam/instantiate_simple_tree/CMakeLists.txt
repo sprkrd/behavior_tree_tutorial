@@ -1,0 +1,2 @@
+add_executable(instantiate_simple_tree main.cpp)
+target_link_libraries(instantiate_simple_tree behaviortree_cpp)

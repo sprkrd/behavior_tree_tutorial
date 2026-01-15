@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4"
+      main_tree_to_execute="MainTree">
+  <BehaviorTree ID="ApproachWhenUserOpensMouth">
+    <ReactiveSequence>
+      <RetryUntilSuccessful num_attempts="-1">
+        <ReactiveFallback>
+          <IsMouthOpen/>
+          <Delay delay_msec="1000">
+            <ForceFailure>
+              <CatchAttention/>
+            </ForceFailure>
+          </Delay>
+        </ReactiveFallback>
+      </RetryUntilSuccessful>
+      <ApproachMouth/>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="MainTree">
+    <KeepRunningUntilFailure>
+      <Sequence>
+        <SubTree ID="ScoopFootWhenUserLooks"/>
+        <SubTree ID="ApproachWhenUserOpensMouth"/>
+        <SubTree ID="WaitUntilUserEatsAndRetreat"/>
+      </Sequence>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="ScoopFootWhenUserLooks">
+    <Sequence>
+      <RetryUntilSuccessful num_attempts="-1">
+        <ReactiveFallback>
+          <DoesUserLookAtRobot/>
+          <Delay delay_msec="1000">
+            <ForceFailure>
+              <CatchAttention/>
+            </ForceFailure>
+          </Delay>
+        </ReactiveFallback>
+      </RetryUntilSuccessful>
+      <Fallback>
+        <Scoop plate="1"/>
+        <Scoop plate="2"/>
+      </Fallback>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="WaitUntilUserEatsAndRetreat">
+    <Sequence>
+      <ForceSuccess>
+        <Timeout msec="5000">
+          <RetryUntilSuccessful num_attempts="-1">
+            <UserHasMovedForwardAndBack/>
+          </RetryUntilSuccessful>
+        </Timeout>
+      </ForceSuccess>
+      <Retreat/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="ApproachMouth"
+            editable="true"/>
+    <Action ID="CatchAttention"
+            editable="true"/>
+    <Condition ID="DoesUserLookAtRobot"
+               editable="true"/>
+    <Condition ID="IsMouthOpen"
+               editable="true"/>
+    <Action ID="Retreat"
+            editable="true"/>
+    <Action ID="Scoop"
+            editable="true">
+      <input_port name="plate"/>
+    </Action>
+    <Condition ID="UserHasMovedForwardAndBack"
+               editable="true"/>
+  </TreeNodesModel>
+
+</root>

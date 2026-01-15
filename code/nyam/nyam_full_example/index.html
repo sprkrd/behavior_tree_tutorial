@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkbox POST Example</title>
+    <style>
+       #log {
+            display: block;
+            font-family: monospace;
+            background-color: #1e1e1e;
+            color: #dcdcdc;
+            padding: 5px;
+            border: 1px solid #555;
+            width: 500px;
+            height: 200px;
+            resize: none;
+        } 
+    </style>
+</head>
+<body>
+    <h2>Conditions</h2>
+
+    <label>
+        <input type="checkbox" id="DoesUserLookAtRobot">
+        Does user look at robot?
+    </label><br>
+
+    <label>
+        <input type="checkbox" id="IsMouthOpen">
+        Is mouth open?
+    </label><br>
+
+    <label>
+        <input type="checkbox" id="UserHasMovedForwardAndBack">
+        User has moved forward and back
+    </label>
+
+    <textarea id="log" readonly></textarea>
+
+    <script>
+        const SET_URL = "/set";
+        const GET_URL = "/get";
+        
+        function appendLogLine(text, maxLines = 150) {
+            const log = document.getElementById("log");
+            log.value += text.trim() + "\n";
+
+            const lines = log.value.split("\n");
+            if (lines.length > maxLines) {
+                log.values = lines.slice(lines.length - maxLines).join("\n");
+            }
+
+            log.scrollTop = log.scrollHeight;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch("/get")
+                .then(async (response) => {
+                    if (!response.ok) {
+                        const text = await response.text();
+                        throw new Error(`Failed to fetch checkbox state: ${text}`);
+                    }
+                    return response.json(); 
+                })
+                .then((data) => {
+                    Object.entries(data).forEach(([name, value]) => {
+                        const checkbox = document.getElementById(name);
+                        if (checkbox) {
+                            checkbox.checked = value;
+                        }
+                    });
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+
+            const ws = new WebSocket("/status");
+            ws.onopen = () => {
+                appendLogLine("[Connected]");
+            };
+            ws.onmessage = (event) => {
+                appendLogLine(event.data);
+            };
+            ws.onerror = (err) => {
+                appendLogLine("[Error]");
+            };
+            ws.onclose = () => {
+                appendLogLine("[Disconnected]");
+            }
+        });
+
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', () => {
+                const payload = {
+                    [cb.id]: cb.checked
+                };
+
+                fetch(SET_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not OK");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Server response:", data);
+                })
+                .catch(err => {
+                    console.error("POST failed:", err);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
