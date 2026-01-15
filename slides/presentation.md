@@ -185,21 +185,32 @@ vvv
 ## 3.1. Overview
 
 * Open source <!-- .element: class="fragment" -->
-* Started by Michele Coledanchise circa 2015
-* ... maintained by Davide Faconti 
+* Started by Michele Coledanchise circa 2015 <!-- .element: class="fragment" -->
+* ... maintained by Davide Faconti <!-- .element: class="fragment" -->
 * C++ 17 <!-- .element: class="fragment" -->
-* Very few dependencies
-* BTs as XML files
-* Async actions as first class citizens
-* Easy interaction with ROS 2
+* Very few dependencies <!-- .element: class="fragment" -->
+* BTs as XML files <!-- .element: class="fragment" -->
+* Async actions as first class citizens <!-- .element: class="fragment" -->
+* Easy interaction with ROS 2 <!-- .element: class="fragment" -->
 
 vvv
 
 ## 3.1. Architecture
 
-vvv
-
-## 3.2. Registering nodes
+<div class="r-stack">
+<img src="img/architecture_frame1.png" class="fragment fade-out" data-fragment-index="0">
+<img src="img/architecture_frame2.png" class="fragment fade-in-then-out" data-fragment-index="0">
+<img src="img/architecture_frame3.png" class="fragment fade-in-then-out">
+<img src="img/architecture_frame4.png" class="fragment fade-in-then-out">
+<img src="img/architecture_frame5.png" class="fragment fade-in-then-out">
+<img src="img/architecture_frame6.png" class="fragment fade-in-then-out">
+<img src="img/architecture_frame7.png" class="fragment fade-in-then-out">
+<img src="img/architecture_frame8.png" class="fragment fade-in-then-out">
+<img src="img/architecture_frame9.png" class="fragment fade-in-then-out">
+<img src="img/architecture_frame10.png" class="fragment fade-in-then-out">
+<img src="img/architecture_frame11.png" class="fragment fade-in-then-out">
+<img src="img/architecture_frame12.png" class="fragment">
+</div>
 
 vvv
 
@@ -214,19 +225,120 @@ vvv
 
 vvv
 
-## 3.3. Registering, instantiate and run trees
+<!-- .slide: class="gridNx2" -->
+
+## 3.3. Creating an asynchronous action <!-- .element: class="header" -->
+
+<img src="img/AskUserName.png">
+
+<pre style="height:750px;" class="language-cpp"><code data-trim data-line-numbers="|1|3-5|11-15|17-23|26|32|33"><script type="text/template">
+class AskUserName : public BT::StatefulActionNode {
+    public:
+        static BT::PortsList providedPorts() {
+            return { BT::OutputPort<std::string>("userName") };
+        }
+        
+        AskUserName(const std::string& nodeName,
+                    const BT::NodeConfig& config)
+            : BT::StatefulActionNode(nodeName, config) {}
+
+        BT::NodeStatus onStart() override {
+            input.clear();
+            std::cout << "What's your name? " << std::endl;
+            return BT::NodeStatus::RUNNING;
+        }
+
+        BT::NodeStatus onRunning() override {
+            if (!input.empty()) {
+                setOutput("userName", input);
+                input.clear();
+                return BT::NodeStatus::SUCCESS;
+            }
+            return BT::NodeStatus::RUNNING;
+        }
+
+        void onHalted() override {}
+};
+
+// ...
+
+int main() {
+    BT::BehaviorTreeFactory factory;
+    factory.registerNodeType<AskUserName>("AskUserName");
+    // ...
+}
+</script></code></pre>
 
 vvv
 
-## 3.4. Preconditions & postconditions
+<!-- .slide: class="gridNx2" -->
+
+## 3.3. Creating a synchronous action <!-- .element: class="header" -->
+
+<img src="img/GreetUser.png">
+
+<pre style="height:750px;" class="language-cpp"><code data-trim data-line-numbers="|11-15"><script type="text/template">
+class GreetUser : public BT::SyncActionNode
+{
+    public:
+        static BT::PortsList providedPorts() {
+            return { BT::InputPort<std::string>("userName") };
+        }
+
+        GreetUser(const std::string& nodeName, const BT::NodeConfig& config)
+            : BT::SyncActionNode(nodeName, config) {}
+
+        BT::NodeStatus tick() override {
+            std::cout << "Hello " << getInput<std::string>("userName").value()
+                      << "!" << std::endl;
+            return BT::NodeStatus::SUCCESS;
+        }
+};
+
+// ...
+
+int main() {
+    // ...
+    factory.registerNodeType<GreetUser>("GreetUser");
+}
+
+</script></code></pre>
 
 vvv
 
-## 3.5. Loggers and observers
+<!-- .slide: class="gridNx2" -->
+
+## 3.3. Creating and running a tree <!-- .element: class="header" -->
+
+<img src="img/ask_name_tree.gif">
+
+<pre style="height:750px;" class="fragment language-cpp"><code data-trim data-line-numbers="|1-10|14|15"><script type="text/template">
+const char* xmlTree = R"(
+<root BTCPP_format="4">
+    <BehaviorTree ID="Main">
+        <Sequence name="root_sequence">
+            <AskUserName    userName="{userName}"/>
+            <GreetUser  userName="{userName}"/>
+        </Sequence>
+    </BehaviorTree>
+</root>
+)";
+
+int main() {
+    // ...
+    auto tree = factory.createTreeFromText(xmlTree);
+    tree.tickWhileRunning(std::chrono::milliseconds(100));
+    // ...
+}
+</script></code></pre>
 
 vvv
+<!-- .slide: class="gridNx2" -->
+## 3.4. Preconditions & postconditions <!-- .element: class="header" -->
 
-## 3.6. Groot2
+![Preconditions can simplify trees](img/precondition-example.png) <!-- .element: height="400" class="fragment" -->
+
+![Using postconditions to know which node in a sequence failed](img/postcondition-example.png) <!-- .element: height="400" class="fragment" -->
 
 vvv
 
@@ -234,12 +346,17 @@ vvv
 
 vvv
 
-## 3.8. Other features
+<!-- .slide: data-background-video="videos/full_example_nyam.mp4" data-background-video-loop data-background-video-muted -->
 
-* Scripting language
-* Support for parallel control nodes
-* Node replacements (mocks)
-* Allows dynamic plugins
+
+vvv
+
+## 3.8. Other nice features
+
+* Scripting language <!-- .element: class="fragment" -->
+* Support for parallel control nodes <!-- .element: class="fragment" -->
+* Tools for debug and diagnostics <!-- .element: class="fragment" -->
+* Allows dynamic plugins <!-- .element: class="fragment" -->
 
 >>>
 
@@ -249,19 +366,99 @@ vvv
 
 ### 4.1. Overview
 
+* Async actions → rclcpp\_action (or even rclcpp::Client)
+    * The server side of the action can be in any ROS 2-supported language
+
 vvv
 
 ### 4.2. ROS 2 actions as BT.cpp async actions
 
+<pre style="height:750px;" class="language-cpp"><code data-trim data-line-numbers="|12-16|18-20|22-27|29-32|35-51|66-69|72-77"><script type="text/template">
+
+class SleepAction : public RosActionNode<btcpp_ros2_interfaces::action::Sleep> {
+public:
+  SleepAction(const std::string& name, const NodeConfig& conf,
+              const RosNodeParams& params)
+    : RosActionNode<btcpp_ros2_interfaces::action::Sleep>(name, conf, params)
+  {}
+
+  static BT::PortsList providedPorts(){
+    return providedBasicPorts({ InputPort<unsigned>("msec") });
+  }
+
+  bool setGoal(Goal& goal) override {
+    auto timeout = getInput<unsigned>("msec");
+    goal.msec_timeout = timeout.value();
+    return true;
+  }
+
+  void onHalt() override {
+    RCLCPP_INFO(logger(), "%s: onHalt", name().c_str()); 
+  }
+
+  BT::NodeStatus onResultReceived(const WrappedResult& wr) override {
+    RCLCPP_INFO(logger(), "%s: onResultReceived. Done = %s", name().c_str(),
+        wr.result->done ? "true" : "false");
+
+    return wr.result->done ? NodeStatus::SUCCESS : NodeStatus::FAILURE; 
+  }
+
+  virtual BT::NodeStatus onFailure(ActionNodeErrorCode error) override {
+    RCLCPP_ERROR(logger(), "%s: onFailure with error: %s", name().c_str(), toStr(error));
+    return NodeStatus::FAILURE; 
+  }
+};
+
+static const char* xml_text = R"(
+ <root BTCPP_format="4">
+     <BehaviorTree>
+        <Sequence>
+            <PrintValue message="start"/>
+            <SleepAction name="sleepA" msec="2000"/>
+            <PrintValue message="sleep completed"/>
+            <Fallback>
+                <Timeout msec="1500">
+                   <SleepAction name="sleepB" action_name="sleep_service" msec="2000"/>
+                </Timeout>
+                <PrintValue message="sleep aborted"/>
+            </Fallback>
+        </Sequence>
+     </BehaviorTree>
+ </root>
+ )";
+
+int main(int argc, char** argv)
+{
+  rclcpp::init(argc, argv);
+  auto nh = std::make_shared<rclcpp::Node>("sleep_client");
+
+  BehaviorTreeFactory factory;
+
+  factory.registerNodeType<PrintValue>("PrintValue");
+
+  RosNodeParams params;
+  params.nh = nh;
+  params.default_port_value = "sleep_service";
+
+#ifdef USE_SLEEP_PLUGIN
+  RegisterRosNode(factory, "../lib/libsleep_action_plugin.so", params);
+#else
+  factory.registerNodeType<SleepAction>("SleepAction", params);
+#endif
+
+  auto tree = factory.createTreeFromText(xml_text);
+
+  for(int i = 0; i < 5; i++)
+  {
+    tree.tickWhileRunning();
+  }
+
+  return 0;
+}
+
+</script></code></pre>
+
 vvv
-
-### 4.3. Tree execution server
-
-vvv
-
-### 4.4. Execution example
-
->>>
 
 ## 🎓 5. Research opportunities 🎓
 
@@ -269,25 +466,67 @@ vvv
 
 ### 5.1. Genetic algorithms
 
-vvv
-
-### 5.2. Coledanchise
+![Learn topology of BTs](img/genetic_algorithms.png)
 
 vvv
 
-### 5.3. Madrid
+### 5.2. Behavior tree + task planning
+
+![Expand condition nodes using task planning (backward chaining)](img/behavior_trees_task_planning.png)
+
+vvv
+
+<!-- .slide: class="gridNx2" -->
+
+### 5.3. BTs and RL <!-- .element: class="header" -->
+
+<ul>
+    <li>RL:
+        <ul>
+            <li class="fragment">Near-optimal behavior</li>
+            <li class="fragment">"Hands-off"</li>
+        </ul>
+    </li>
+    <li>BTs:
+        <ul>
+            <li class="fragment">Explainable</li>
+            <li class="fragment">Modular</li>
+            <li class="fragment">Guaranteed convergence</li>
+        </ul>
+    </li>
+</ul>
+
+
+<div class="fragment">
+<b>Can we get the best of both worlds?</b>
+<ul>
+    <li class="fragment">Replace nodes or subtrees by RL</li>
+    <li class="fragment">Learn priorities of fallback nodes</li>
+    <li class="fragment">Improve backward chaining with RL</li>
+    <li class="fragment">Many more possibilities...</li>
+</ul>
+</div>
 
 >>>
 
 ## 🏁 6. Conclusions 🏁
 
-* Great reusability
-    * Maintain repository of nodes and subtrees
-* Drag & drop demos
-* Good visual feedback
-* Lots of resources and support
-* Research opportunities if you work in planning
+* Great reusability <!-- .element: class="fragment" -->
+    * Maintain repository of nodes and subtrees <!-- .element: class="fragment" -->
+* Drag & drop demos <!-- .element: class="fragment" -->
+* Good visual feedback <!-- .element: class="fragment" -->
+* Lots of resources and support <!-- .element: class="fragment" -->
+* Research opportunities if you work in planning <!-- .element: class="fragment" -->
 
 >>>
 
-## 🔗 7. Resources 🔗 
+## 🔗 7. Resources 🔗
+
+* [Code used for this presentation](https://github.com/sprkrd/behavior_tree_tutorial)
+* [Youtube series on BTs by P. Ögren](https://www.youtube.com/watch?v=KeShMInMjro&list=PLFQdM4LOGDr_vYJuo8YTRcmv3FrwczdK)
+* [Behavior Trees in Robotics and AI free book](https://arxiv.org/abs/1709.00084)
+* [M. Coledanchise PhD thesis](https://kth.diva-portal.org/smash/get/diva2:1078940/FULLTEXT01.pdf)
+
+>>>
+
+# Questions?
