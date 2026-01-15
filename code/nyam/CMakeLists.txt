@@ -2,13 +2,13 @@ cmake_minimum_required(VERSION 3.25)
 project(nyam LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 include(FetchContent)
-include(make_btcpp_available)
-include(make_asio_available)
-include(make_crow_available)
+include(make_dependencies_available)
 
+make_zeromq_available()
 make_btcpp_available()
 make_asio_available()
 make_crow_available()
