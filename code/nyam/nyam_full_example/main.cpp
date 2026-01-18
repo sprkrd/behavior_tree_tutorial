@@ -84,6 +84,7 @@ class Server
         void SendMessage(const std::string& message)
         {
             std::lock_guard lock(_wsMtx);
+            CROW_LOG_INFO << "Sending " << message;
             for (auto* user : _users)
             {
                 user->send_text(message);
@@ -119,14 +120,14 @@ class Server
         void WsOnConnect(crow::websocket::connection& conn)
         {
             std::lock_guard lock(_wsMtx);
-            CROW_LOG_INFO << "New websocket connection from " << conn.get_remote_ip();
+            CROW_LOG_INFO << "New websocket connection " << &conn << ' ' << conn.get_remote_ip();
             _users.push_back(&conn);
         }
 
         void WsOnClose(crow::websocket::connection& conn, const std::string&, uint16_t)
         {
             std::lock_guard lock(_wsMtx);
-            CROW_LOG_INFO << "Bye " << conn.get_remote_ip();
+            CROW_LOG_INFO << "Bye " << &conn;
             auto it = std::find(_users.begin(), _users.end(), &conn);
             if (it != _users.end())
             {

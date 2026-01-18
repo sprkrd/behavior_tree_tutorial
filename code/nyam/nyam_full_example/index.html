@@ -46,7 +46,6 @@
             log.value += text.trim() + "\n";
 
             const lines = log.value.split("\n");
-			console.log(lines.length);
             if (lines.length > maxLines) {
                 log.value = lines.slice(lines.length - maxLines).join("\n");
             }
@@ -83,6 +82,7 @@
                 appendLogLine(event.data);
             };
             ws.onerror = (err) => {
+                console.log(err);
                 appendLogLine("[Error]");
             };
             ws.onclose = () => {
